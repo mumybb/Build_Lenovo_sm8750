@@ -53,47 +53,47 @@ on:
        
 jobs:
   build:
-    name: Build_${{ github.event.inputs.KERNEL_VERSION }}
+    name: Build_${{ github.event.inputs.kernel_version }}
     runs-on: ubuntu-latest
     env:
       gz_branch: 'heads'
-      KSU_TYPE:           ${{ github.event.inputs.ksu_type }}
-      KERNEL_VERSION:           ${{ github.event.inputs.kernel_version }}
-      CUSTOM_KERNEL_SUFFIX:   ${{ github.event.inputs.custom_kernel_suffix }}
+      KSU_TYPE: ${{ github.event.inputs.ksu_type }}
+      KERNEL_VERSION: ${{ github.event.inputs.kernel_version }}
+      CUSTOM_KERNEL_SUFFIX: ${{ github.event.inputs.custom_kernel_suffix }}
       CUSTOM_KERNEL_TIME: ${{ github.event.inputs.custom_kernel_time }}
-      ENABLE_BBG:       ${{ github.event.inputs.enable_bbg }}
-      ENABLE_KPM:       ${{ github.event.inputs.enable_kpm }}
-      ENABLE_SIGNED:       ${{ github.event.inputs.enable_signed }}
+      ENABLE_BBG: ${{ github.event.inputs.enable_bbg }}
+      ENABLE_KPM: ${{ github.event.inputs.enable_kpm }}
+      ENABLE_SIGNED: ${{ github.event.inputs.enable_signed }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: ⚙️ Set Kernel version config(设置对应内核版本配置文件)
         run: |
-          echo "KERNEL_TIME=${{ env.CUSTOM_KERNEL_TIME }} " >> $GITHUB_ENV
+          echo "KERNEL_TIME=${{ env.CUSTOM_KERNEL_TIME }}" >> $GITHUB_ENV
           case "${{ env.KERNEL_VERSION }}" in
-            6.6.56)
+            "6.6.56")
               echo "os_patch_level=2024-11" >> $GITHUB_ENV
               echo "releases=TB322FC_1.1.11.120" >> $GITHUB_ENV
               ;;
-            6.6.89)
+            "6.6.89")
               echo "os_patch_level=2025-06" >> $GITHUB_ENV
               echo "releases=ColorOS_16_400_OPD_Boot" >> $GITHUB_ENV
               ;;
-            6.6.102)
+            "6.6.102")
               echo "os_patch_level=2025-10" >> $GITHUB_ENV
               echo "releases=TB322FC_1.5.10.096" >> $GITHUB_ENV
               ;;
           esac
            if [ -z "${{ env.CUSTOM_KERNEL_SUFFIX }}" ]; then
             case "${{ env.KERNEL_VERSION }}" in
-              6.6.56)
+              "6.6.56")
                 echo 'DEFAULT_SUFFIX=-android15-8-g38447e018c92-ab12829524-4k' >> $GITHUB_ENV
                 ;;
-              6.6.89)
+              "6.6.89")
                 echo 'DEFAULT_SUFFIX=-android15-8-g14220ae4ce65-ab13680582-4k' >> $GITHUB_ENV
                 ;;
-              6.6.102)
+              "6.6.102")
                 echo 'DEFAULT_SUFFIX=-android15-8-g06bc416365ef-ab14559830-4k' >> $GITHUB_ENV
                 ;;
             esac
@@ -289,16 +289,15 @@ jobs:
         run: |
           cd kernel_workspace
           echo "CONFIG_KSU=y" >> ./common/arch/arm64/configs/gki_defconfig
-          echo "CONFIG_KSU_MULTI_MANAGER_SUPPORT=y" >> ./common/arch/arm64/configs/gki_defconfig
           printf '%s\n' 'KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%-Re-TG@qdykernel"' >>  ./common/arch/arm64/configs/gki_defconfig
           
-          if [ "${{ env.ENABLE_KPM }}" = "true" ]; then
+          if [[ "${{ env.ENABLE_KPM }}" == "true" ]]; then
             echo "CONFIG_KPM=y" >> ./common/arch/arm64/configs/gki_defconfig
           else
             echo "CONFIG_KPM=n" >> ./common/arch/arm64/configs/gki_defconfig
           fi
 
-          if [ "${{ env.KSU_TYPE }}" == 'ReSukiSU' ]; then
+          if [[ "${{ env.KSU_TYPE }}" == "ReSukiSU" ]]; then
             echo "CONFIG_KSU_MULTI_MANAGER_SUPPORT=y" >> ./common/arch/arm64/configs/gki_defconfig
             echo 'CONFIG_KSU_FULL_NAME_FORMAT="%TAG_NAME%-%COMMIT_SHA%-Re-TG@qdykernel"' >> ./common/arch/arm64/configs/gki_defconfig
           fi
